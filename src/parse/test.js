@@ -745,6 +745,16 @@ describe('parse', function() {
       var result = parse('567890', 'SSSSSS', baseDate)
       assert.deepEqual(result, new Date(1986, 3 /* Apr */, 4, 10, 32, 0, 567))
     })
+
+    it('after timestamp', () => {
+      const time = new Date(1987, 1, 11, 0, 0, 0).getTime()
+      const result = parse(
+        `${Math.floor(time / 1000)}.123`,
+        't.SSS',
+        Date.now()
+      )
+      assert.deepEqual(result, new Date(1987, 1, 11, 0, 0, 0, 123))
+    })
   })
 
   describe('timezone (ISO-8601 w/ Z)', function() {
@@ -1093,11 +1103,11 @@ describe('parse', function() {
       assert.deepEqual(result, new Date(2000, 3 /* Apr */, 12))
     })
 
-    it('timestamp overwrites everything', function() {
+    it('milliseconds timestamp overwrites everything', function() {
       var dateString = '512969520900 512969520 2014-07-02T05:30:15.123+06:00'
       var formatString = "T t yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
       var result = parse(dateString, formatString, baseDate)
-      assert.deepEqual(result, new Date(512969520000))
+      assert.deepEqual(result, new Date(512969520900))
     })
   })
 
@@ -1363,13 +1373,6 @@ describe('parse', function() {
     })
   })
 
-  it('accepts a string as `baseDate`', function() {
-    var dateString = '6 p.m.'
-    var formatString = 'h aaaa'
-    var result = parse(dateString, formatString, baseDate.toISOString())
-    assert.deepEqual(result, new Date(1986, 3 /* Apr */, 4, 18))
-  })
-
   it('accepts a timestamp as `baseDate`', function() {
     var dateString = '6 p.m.'
     var formatString = 'h aaaa'
@@ -1448,14 +1451,6 @@ describe('parse', function() {
       })
       assert.throws(block, RangeError)
     })
-  })
-
-  it('throws `RangeError` if `options.additionalDigits` is not convertable to 0, 1, 2 or undefined`', function() {
-    // $ExpectedMistake
-    var block = parse.bind(null, '16', 'yy', baseDate, {
-      additionalDigits: NaN
-    })
-    assert.throws(block, RangeError)
   })
 
   it('throws TypeError exception if passed less than 3 arguments', function() {
